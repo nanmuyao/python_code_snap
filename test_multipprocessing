@@ -1,0 +1,49 @@
+# python2
+from multiprocessing import Pool, Process
+import multiprocessing
+import time
+import os
+
+
+def worker(q):
+    while True:
+        try:
+            i = q.get(False)
+            print 'pid===', os.getpid(), 'i', i
+        except Exception as e:
+            break
+        time.sleep(i)
+        print 'pid===', os.getpid(), 'i', i
+
+def main():
+    q = multiprocessing.Queue()
+
+    p_list = []
+    for i in range(3):
+        q.put(i)
+
+    for i in range(6):
+        p = Process(target=worker, args=(q,))
+        p.start()
+        p_list.append(p)
+
+    for p in p_list:
+        p.join()
+
+    print 'end'
+
+
+def worker1(i):
+    print i
+    time.sleep(i)
+
+def main1():
+    p = Pool(2)
+    # map 会自动启动任务
+    print(p.map(worker1, [1,2,5]))
+
+
+
+if  __name__ == '__main__':
+    main()
+➜  test
