@@ -67,6 +67,7 @@ def test_thread():
     # 两种方案1.daemon=False2.join的超时时间长一些
     # Q1 deamon=False 会阻塞主线程吗？
     # Q2 join 时间过长会阻塞主线程吗？
+    # A: 取决于任务的执行时间，如果任务while True，那么主线程一直阻塞
     t1 = Thread(target=thread_function1, args=(1,), daemon=True)
     t2 = Thread(target=thread_function2, args=(2,), daemon=True)
     t1.start()
