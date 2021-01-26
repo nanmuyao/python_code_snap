@@ -1,0 +1,38 @@
+import time
+
+import requests
+
+timeout = 3
+
+domain = "https://www.baidu.com/"
+
+
+def test_proxy():
+    try:
+        requests.get(domain, proxies={"https": "https://192.168.1.130:13228"}, timeout=timeout)
+    except:
+        print('connect failed https 130 13228')
+
+    try:
+        requests.get(domain, proxies={"http": "http://192.168.1.130:13228"}, timeout=timeout)
+    except:
+        print('1connect failed http 130 13228')
+
+    try:
+        requests.get(domain, proxies={"https": "https://192.168.1.131:13229"}, timeout=timeout)
+    except:
+        print('connect failed https 131 13229')
+
+    try:
+        requests.get(domain, proxies={"http": "http://192.168.1.131:13229"}, timeout=timeout)
+    except:
+        print('1connect failed http 131 13229')
+
+
+if __name__ == "__main__":
+    while True:
+        start = int(time.time())
+        test_proxy()
+        end = int(time.time())
+        print('four request duration', end - start)
+        time.sleep(0.001)
