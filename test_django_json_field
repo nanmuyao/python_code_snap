@@ -1,0 +1,68 @@
+import time
+from collections import defaultdict
+from datetime import timedelta
+
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+from django.conf import settings
+
+from trade.pricing import get_benchmark_price
+from common.helpers import decstr, getLogger, dec
+from crawler.models import Symbol
+from trade.models import BOrder, OrderType, OrderStatus, SubOrder
+from common.tasks import send_notify_by_ding
+
+logger = getLogger(__name__)
+
+NOW = timezone.now()
+END = NOW - timedelta(minutes=10)
+BEGIN = NOW - timedelta(days=31)
+
+
+def test_jsonfield():
+    BOrder.objects.all().delete()
+    border1 = BOrder.objects.create(
+        account_id=0,
+        parent_order_id=0,
+        symbol_id=14,
+        side="SELL",
+        price=dec("7402.710734000"),
+        size=dec(0.01),
+        status="created",
+        request_id='11111111111111111',
+        info={'a': 1},
+    )
+
+    border2 = BOrder.objects.create(
+        account_id=0,
+        parent_order_id=0,
+        symbol_id=14,
+        side="SELL",
+        price=dec("7402.710734000"),
+        size=dec(0.01),
+        status="created",
+        request_id='2222222222222',
+        info={'b': 2},
+    )
+
+    border1.info.update({'name': '1'})
+    border1.save()
+    print('border1', border1.info)
+    print("border2", border2.info)
+
+
+# info = JSONField(default={})
+# 如果default={}会共享内存
+#     WARNINGS:
+# trade.BOrder.info: (postgres.E003) JSONField default should be a callable instead of an instance so that it's not shared between all field instances.
+#         HINT: Use a callable instead, e.g., use `dict` instead of `{}`.
+# border1 {'name': '1'}
+# border2 {'name': '1'}
+
+
+class Command(BaseCommand):
+    """委托单，merge_order, sub_order监控"""
+
+    def handle(self, *args, **options):
+        """统计委托单"""
+        test_jsonfield()
